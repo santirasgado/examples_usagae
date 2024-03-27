@@ -1,29 +1,42 @@
-pip install streamlit folium
-
 import streamlit as st
 import folium
-from streamlit_folium import st_folium
 import requests
+import os
 
 def main():
     st.title("Mapa de Ubicación de IPs")
 
-    # Aquí puedes agregar la funcionalidad para ingresar direcciones IP
-    ips = ['189.241.203.74', '3.80.247.134', '187.208.97.53', '189.216.43.254',  '73.179.155.130', '216.163.246.128', '187.188.8.161', '89.163.216.65', '181.13.214.90', '89.163.216.65', '89.163.216.65']
+    # Ejemplo de direcciones IP para mostrar cómo ingresarlas
+    example_ips = '189.241.203.74, 3.80.247.134'
+    ip_addresses = st.text_area("Ingresa las direcciones IP, separadas por comas", example_ips)
+    ips = [ip.strip() for ip in ip_addresses.split(',') if ip.strip()]
 
-    api_key = '51d0481f274cac'
-    mapa = folium.Map(location=[20, 0], zoom_start=2)
+    # Usa una variable de entorno para la clave API
+    api_key = os.getenv('IPINFO_API_KEY')
+
+    # Crea un mapa base
+    mapa = folium.Map(location=[0, 0], zoom_start=2)
 
     for ip in ips:
-        response = requests.get(f'https://ipinfo.io/{ip}/json?token={api_key}')
-        if response.status_code == 200:
-            data = response.json()
-            location = data['loc'].split(',')
-            folium.Marker([float(location[0]), float(location[1])], popup=ip).add_to(mapa)
-        else:
-            st.error(f'Error al obtener la ubicación para {ip}: {response.status_code}')
+        try:
+            response = requests.get(f'https://ipinfo.io/{ip}/json?token={api_key}')
+            if response.status_code == 200:
+                data = response.json()
+                if 'loc' in data:
+                    lat, lon = map(float, data['loc'].split(','))
+                    folium.Marker([lat, lon], popup=f'{ip} - {data.get("city", "N/A")}, {data.get("country", "N/A")}').add_to(mapa)
+                else:
+                    st.error(f'No se pudo obtener la ubicación para {ip}')
+        except Exception as e:
+            st.error(f'Error al procesar la IP {ip}: {e}')
 
-    st_data = st_folium(mapa, width=700, height=500)
+    # Renderizar el mapa en la aplicación Streamlit
+    st_folium(mapa, width=725, height=500)
+
+# Función para mostrar el mapa en Streamlit
+def st_folium(m, width=700, height=500):
+    m.save('map.html')
+    return st.components.v1.html(open('map.html', 'r').read(), width=width, height=height)
 
 if __name__ == "__main__":
     main()
