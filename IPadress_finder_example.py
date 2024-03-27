@@ -12,7 +12,7 @@ def main():
     ips = [ip.strip() for ip in ip_addresses.split(',') if ip.strip()]
 
     # Usa una variable de entorno para la clave API
-    api_key = os.getenv('IPINFO_API_KEY')
+    api_key = os.getenv('51d0481f274cac')
 
     # Crea un mapa base
     mapa = folium.Map(location=[0, 0], zoom_start=2)
