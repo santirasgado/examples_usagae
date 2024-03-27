@@ -9,7 +9,7 @@ def main():
     # Aquí puedes agregar la funcionalidad para ingresar direcciones IP
     ips = ['189.241.203.74', '3.80.247.134', '187.208.97.53', '189.216.43.254',  '73.179.155.130', '216.163.246.128', '187.188.8.161', '89.163.216.65', '181.13.214.90', '89.163.216.65', '89.163.216.65']
 
-    api_key = 'tu_clave_de_api'
+    api_key = '51d0481f274cac'
     mapa = folium.Map(location=[20, 0], zoom_start=2)
 
     for ip in ips:
